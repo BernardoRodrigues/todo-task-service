@@ -30,8 +30,12 @@ export class TaskRepository {
         };
     }
 
+    public async checkConnection(): Promise<void> {
+        const {rows} = await this.db.query('select now()'); 
+        return;
+    }
 
-    public async getBetweenDates(): Promise<{task: TaskModel, todo: TodoModel}[]> {
+    public async getAfterDate(date: Date): Promise<{task: TaskModel, todo: TodoModel}[]> {
         try {
             const { rows } = await this.db.query(
                 `select tt.endpoint as endpoint, tt.auth_key as auth, tt.p256dh_key as p256dh, td.todo_start_date as startDate, td.todo_end_date as endDate, td.todo_id as todoId, 
@@ -39,8 +43,8 @@ export class TaskRepository {
                 from to_do as td 
                 inner join priority as p on p.priority_id = td.priority_id 
                 inner join todo_task as tt on tt.user_id = tt.user_id 
-                where td.is_done = false and td.is_cancelled = false;`,
-                []
+                where td.is_done = false and td.is_cancelled = false and td.todo_start_date < date;`,
+                [date]
             )
             return rows.map(this.mapper)
         } catch(err) {

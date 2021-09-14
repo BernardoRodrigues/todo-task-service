@@ -2,7 +2,6 @@ import { TaskModel } from './../models/task-model';
 import { Router } from "express";
 import { DbConnection } from "../db/db-connection";
 import { TaskRepository } from "../db/task-repository";
-import { DbConfig } from "../models/db-config";
 import { NextFunction, ParamsDictionary, Request, Response } from 'express-serve-static-core';
 import QueryString from 'qs';
 import axios from 'axios';
@@ -16,14 +15,7 @@ import { ServiceNotAvailableError } from '../errors/service-not-available.error'
 import { MissingJwtError } from '../errors/missing-jwt.error';
 
 
-const config: DbConfig = {
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    port: process.env.DB_PORT == null ? 5432 : +process.env.DB_PORT,
-    database: process.env.DB_NAME || "todo_db",
-    host: process.env.DB_HOST || "localhost"
-}
-const connection = new DbConnection(config);
+const connection = new DbConnection(process.env.TODO_DB_URL);
 const taskRep = new TaskRepository(connection)
 // const granularity = process.env.GRANULARITY == null ? 1 : +process.env.GRANULARITY
 const taskRouter = Router()
@@ -36,7 +28,7 @@ const getUserIdFromJwt = async (req: any): Promise<string> => {
     if (token == null) {
         throw new MissingJwtError('jwt is null');
     }
-    const res = await instance.get(`${process.env.USER_SERVICE_PATH}/verify-jwt?token=${token}`)
+    const res = await instance.get(`${process.env.TODO_USER_SERVICE_PATH}/service/user/verify-jwt?token=${token}`)
     switch(res.status) {
         case 200:
             return res.data.value.id;
@@ -56,7 +48,7 @@ const authRequest = async (req: Request<ParamsDictionary, any, any, QueryString.
     }
     const split = auth.split(" ")
     const token = split[1];
-    const result = await axios.get(`${process.env.USER_SERVICE_PATH}/verify-jwt?token=${token}`);
+    const result = await axios.get(`${process.env.TODO_USER_SERVICE_PATH}/verify-jwt?token=${token}`);
     // req.jwt = result.data;
     if (result.status === 200) {
         return next();
