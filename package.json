@@ -7,7 +7,7 @@
     "build:dev": "tsc && copyfiles -f src/cert/*.crt dist/src/cert && copyfiles -f src/cert/*.key dist/src/cert && copyfiles -f package.json dist && copyfiles -f src/files/*.json dist/src/files",
     "start:dev": "NODE_ENV=dev node dist/src/index.js",
     "build:prod": "tsc",
-    "start:prod": "NODE_ENV=production node dist/src/index.js",
+    "start:prod": "copyfiles -f /app/src/files/keys.json /app/dist/src/files/ && NODE_ENV=production node dist/src/index.js",
     "prepare": "npm run build:prod"
   },
   "author": "Bernardo Rodrigues",
