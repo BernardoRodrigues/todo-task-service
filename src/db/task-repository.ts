@@ -43,7 +43,7 @@ export class TaskRepository {
                 from to_do as td 
                 inner join priority as p on p.priority_id = td.priority_id 
                 inner join todo_task as tt on tt.user_id = tt.user_id 
-                where td.is_done = false and td.is_cancelled = false and td.todo_start_date < date;`,
+                where td.is_done = false and td.is_cancelled = false and td.todo_start_date < $1;`,
                 [date]
             )
             return rows.map(this.mapper)
